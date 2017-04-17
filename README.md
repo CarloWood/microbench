@@ -1,71 +1,76 @@
-# moodycamel::microbench
+# microbench submodule
 
-Provides a dead-simple micro-benchmarking function for C++. Executes a given function
-some number of times per test run, and returns the time it took for the fastest test run to execute.
+This repository is a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+providing a simple C++ benchmark utility.
 
-Works on Windows, Linux, and Mac OS X. Compile with VS2010 or better, or a C++11 compliant compiler (e.g. gcc 4.7+).
+The root project should be using
+[autotools](https://en.wikipedia.org/wiki/GNU_Build_System autotools) and
+[cwm4](https://github.com/CarloWood/cwm4).
 
-## Basic Example
+## Checking out a project that uses the microbench submodule.
 
-    #include "microbench/microbench.h"
-    #include <cstdio>
+To clone a project example-project that uses microbench simply run:
 
-    void some_function();
+<pre>
+<b>git clone --recursive</b> &lt;<i>URL-to-project</i>&gt;<b>/example-project.git</b>
+<b>cd example-project</b>
+<b>./autogen.sh</b>
+</pre>
 
-    printf("some_function takes %.1fms to execute\n",
-        moodycamel::microbench(&some_function)
-    );
+The <tt>--recursive</tt> is optional because <tt>./autogen.sh</tt> will fix
+it when you forgot it.
 
-## Detailed Example
+Afterwards you probably want to use <tt>--enable-mainainer-mode</tt>
+as option to the generated <tt>configure</tt> script.
 
-    // GCC command-line: g++ -std=c++11 -DNDEBUG -O3 -lrt main.cpp microbench/systemtime.cpp -o bench
-    // (omit -lrt if on Windows or Mac OS X)
+## Adding the microbench submodule to a project
 
-    #include "microbench/microbench.h"
-    #include <cstdio>
-    #include <atomic>
+To add this submodule to a project, that project should already
+be set up to use [cwm4](https://github.com/CarloWood/cwm4).
 
-    std::atomic<int> x(0);
-    int y = 0;
-    printf("CAS takes %.4fns on average\n",
-        moodycamel::microbench(
-            [&]() { x.compare_exchange_strong(y, 0); },  /* function to benchmark */
-            100000, /* iterations per test run */
-            20, /* number of test runs */
-            true /* whether to use the average time per iteration (the default) or total time per run (pass false) */
-        ) * 1000 * 1000    // ms -> ns
-    );
-    
-    // Result in my environment: Clocks in at ~24ns per CAS operation
-    
-## Moar statistics
+Simply execute the following in a directory of that project
+where you want to have the <tt>microbench</tt> subdirectory:
 
-`microbench` can also give you the minimum, maximum, range, quartiles, median, mean, and standard deviation
-if you're feeling particularly peckish. Example:
+<pre>
+git submodule add https://github.com/CarloWood/microbench.git
+</pre>
 
-    std::atomic<int> x(0);
-    int y = 0;
-    moodycamel::stats_t stats =
-        moodycamel::microbench_stats([&]() { x.compare_exchange_strong(y, 0); }, 100000, 20);
-    printf("CAS statistics: avg: %.2fns, min: %.2fns, max: %.2fns, stddev: %.2fns, Q1: %.2fns, median: %.2fns, Q3: %.2fns\n",
-        stats.avg() * 1000 * 1000,
-        stats.min() * 1000 * 1000,
-        stats.max() * 1000 * 1000,
-        stats.stddev() * 1000 * 1000,
-        stats.q1() * 1000 * 1000,
-        stats.median() * 1000 * 1000,
-        stats.q3() * 1000 * 1000);
-        
-    // Result in my environment: avg: 26.47ns, min: 24.12ns, max: 32.98ns, stddev: 3.07ns, Q1: 24.15ns, median: 24.64ns, Q3: 30.19ns
+This should clone the submodule into the subdirectory <tt>microbench</tt>, or
+if you already cloned it there, it should add it.
 
-## Why?
+Changes to <tt>configure.ac</tt> and <tt>Makefile.am</tt>
+are taken care of my <tt>cwm4</tt>, except for linking
+which works as usual;
 
-Yeah, I'm sure there's lots of other libraries that do the same thing, and a good portion of programmers
-have no doubt cobbled together their own microbenchmark shims over the years. But I wanted something
-reusable with minimal dependencies, and something that was **easy to use** so that I wouldn't have to waste
-time wondering how long something might take -- I could *just check* (without having to worry about
-icky platform-specific high-resolution timer routines and bothersome boilerplate).
+for example, a module that defines a
+
+<pre>
+bin_PROGRAMS = foobar
+</pre>
+
+would also define
+
+<pre>
+foobar_CXXFLAGS =
+foobar_LDADD = ../microbench/libmicrobench.la
+</pre>
+
+or whatever the path to `microbench` is, to link with the submodule.
+
+Finally, run
+
+<pre>
+./autogen.sh
+</pre>
+
+to let cwm4 do its magic, and commit all the changes.
+
+Checkout [ai-statefultask-testsuite](https://github.com/CarloWood/ai-statefultask-testsuite)
+for an example of a project that uses this submodule.
+
+See the README.md of the [original project](https://github.com/cameron314/microbench)
+for usage documention.
 
 ## License
 
-Released under the [simplified BSD license](https://github.com/cameron314/microbench/blob/master/LICENSE.md).
+Released under the [simplified BSD license](https://github.com/CarloWood/microbench/blob/master/LICENSE.md).
