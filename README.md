@@ -4,7 +4,7 @@ This repository is a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Su
 providing a simple C++ benchmark utility.
 
 The root project should be using
-[autotools](https://en.wikipedia.org/wiki/GNU_Build_System autotools) and
+[autotools](https://en.wikipedia.org/wiki/GNU_Build_System_autotools) and
 [cwm4](https://github.com/CarloWood/cwm4).
 
 ## Checking out a project that uses the microbench submodule.
