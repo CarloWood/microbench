@@ -8,7 +8,7 @@ project( microbench
 list( APPEND CMAKE_MODULE_PATH
       "${CMAKE_CURRENT_SOURCE_DIR}/../cwm4/cmake" )
 
-include(AICxxProject)
+include( AICxxProject )
 
 #==============================================================================
 # BUILD PROJECT
